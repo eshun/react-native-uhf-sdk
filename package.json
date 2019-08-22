@@ -1,0 +1,21 @@
+{
+  "name": "react-native-uhf-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native"
+  ],
+  "author": "",
+  "license": "",
+  "peerDependencies": {
+    "react-native": "^0.41.2"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-regenerator": "^7.4.5",
+    "metro-babel7-plugin-react-transform": "^0.54.1"
+  }
+}
