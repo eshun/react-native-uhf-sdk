@@ -95,13 +95,18 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
     @Override
     public void onResponse(byte[] resp) throws RemoteException
     {
-      logger.info(ConvertUtils.bytesToString(resp));
-      List<RespOrNotifyFrame> msgList = factory.receive(resp);
-      for (RespOrNotifyFrame frame : msgList)
-      {
-        logger.info(frame.getClass().getSimpleName());
-        showResult(frame.toBytes());
-        //frame.handleBy(protocolHandler);
+      try{
+        String s=ConvertUtils.bytesToString(resp);
+        logger.info(s);
+        List<RespOrNotifyFrame> msgList = factory.receive(resp);
+        for (RespOrNotifyFrame frame : msgList)
+        {
+          logger.info(frame.getClass().getSimpleName());
+          showResult(reactContext, frame.toBytes());
+          //frame.handleBy(protocolHandler);
+        }
+      }catch (Exception e){
+
       }
     }
   };
@@ -136,8 +141,8 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void getFirmware() {
-    write(new CmdDeviceInfo(DeviceInfoType.HARDWARE));
+  public boolean getFirmware() {
+    return write(new CmdDeviceInfo(DeviceInfoType.HARDWARE));
   }
 
   @ReactMethod
@@ -150,11 +155,10 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
     write(new CmdDeviceInfo(DeviceInfoType.MANUFACTURER));
   }
 
-  private void showResult(byte[] bytes){
-    String s = new String(bytes);
+  private void showResult(ReactApplicationContext reactContext,byte[] bytes){
     WritableMap params = Arguments.createMap();
-    params.putString("data", s);
-    this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("showResult", params);
+    params.putString("data", ConvertUtils.bytesToString(bytes));
+    reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("showResult", params);
   }
 
 

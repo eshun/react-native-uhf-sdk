@@ -12,7 +12,7 @@ export default {
     },
     showResult:function (callback) {
         if (!listener && callback && typeof callback === "function") {
-            DeviceEventEmitter.addListener('showResult', (data) => callback(data));
+            DeviceEventEmitter.addListener('showResult', (ret) => callback(ret.data));
         }
     }
 }
