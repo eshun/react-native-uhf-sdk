@@ -40,7 +40,7 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
 
   private RespAndNotifyFactory factory = new RespAndNotifyFactory();
-  private RespAndNotifyHandler protocolHandler = getProtocolHandler();
+  //private RespAndNotifyHandler protocolHandler = getProtocolHandler();
   private IUhfService uhfService; // 注意可能为null
 
   public RNUhfModule(ReactApplicationContext reactContext) {
@@ -101,12 +101,12 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
       {
         showResult(frame.toBytes());
         logger.info(frame.getClass().getSimpleName());
-        frame.handleBy(protocolHandler);
+        //frame.handleBy(protocolHandler);
       }
     }
   };
 
-  private abstract RespAndNotifyHandler getProtocolHandler();// 子类必须覆盖此方法以处理返回数据
+  //private abstract RespAndNotifyHandler getProtocolHandler();// 子类必须覆盖此方法以处理返回数据
 
   private boolean write(CmdFrame cmd) {
     if (uhfService != null && cmd != null) {
