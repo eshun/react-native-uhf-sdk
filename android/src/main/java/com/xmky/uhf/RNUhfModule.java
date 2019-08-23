@@ -99,8 +99,8 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
       List<RespOrNotifyFrame> msgList = factory.receive(resp);
       for (RespOrNotifyFrame frame : msgList)
       {
-        showResult(frame.toBytes());
         logger.info(frame.getClass().getSimpleName());
+        showResult(frame.toBytes());
         //frame.handleBy(protocolHandler);
       }
     }
@@ -150,8 +150,7 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
     write(new CmdDeviceInfo(DeviceInfoType.MANUFACTURER));
   }
 
-  @ReactMethod
-  public void showResult(byte[] bytes){
+  private void showResult(byte[] bytes){
     String s = new String(bytes);
     WritableMap params = Arguments.createMap();
     params.putString("data", s);

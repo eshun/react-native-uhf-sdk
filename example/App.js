@@ -8,7 +8,6 @@
 
 import React, {Component} from 'react';
 import {
-  DeviceEventEmitter,
   StyleSheet,
   ScrollView,
   View,
@@ -21,9 +20,7 @@ import RNUhf from 'react-native-uhf-sdk';
 export default class App extends Component {
 
   componentDidMount() {
-    DeviceEventEmitter.addListener('showResult', (data) => {
-      console.log('showResult',data);
-    });
+    RNUhf.
   }
 
   componentWillUnmount() {
