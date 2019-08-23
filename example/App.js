@@ -6,36 +6,48 @@
  * @flow
  */
 
-import React, {Fragment} from 'react';
+import React, {Component} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
   ScrollView,
   View,
   Text,
+  Button,
 } from 'react-native';
 
 import RNUhf from 'react-native-uhf-sdk';
 
-const App = () => {
-  return (
-    <Fragment>
-      <SafeAreaView>
+export default class App extends Component {
+
+  onPressFirmware() {
+    console.log("init");
+    RNUhf.getFirmware();
+
+  }
+
+  render() {
+    return (
         <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
+            contentInsetAdjustmentBehavior="automatic"
+            style={styles.scrollView}>
           <View style={styles.body}>
             <View style={styles.sectionContainer}>
+              <Button
+                  onPress={this.onPressFirmware}
+                  title="getFirmware"
+                  color="#841584"
+              />
+
               <Text style={styles.sectionDescription}>
                 Edit
               </Text>
             </View>
           </View>
         </ScrollView>
-      </SafeAreaView>
-    </Fragment>
-  );
-};
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   scrollView: {
@@ -56,4 +68,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;

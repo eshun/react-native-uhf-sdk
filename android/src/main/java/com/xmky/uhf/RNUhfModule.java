@@ -122,14 +122,17 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
     return false;
   }
 
+  @ReactMethod
   public void getFirmware() {
     write(new CmdDeviceInfo(DeviceInfoType.HARDWARE));
   }
 
+  @ReactMethod
   public void getVersionInfo() {
     write(new CmdDeviceInfo(DeviceInfoType.SOFTWARE));
   }
 
+  @ReactMethod
   public void getMakerInfo() {
     write(new CmdDeviceInfo(DeviceInfoType.MANUFACTURER));
   }
