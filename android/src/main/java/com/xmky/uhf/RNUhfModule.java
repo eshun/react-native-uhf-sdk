@@ -8,14 +8,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 
+import com.boogoob.uhf.protocol.RespAndNotifyFactory;
+import com.boogoob.uhf.protocol.RespAndNotifyHandler;
+import com.boogoob.uhf.protocol.RespOrNotifyFrame;
 import com.boogoob.uhf.protocol.cmd.CmdDeviceInfo;
 import com.boogoob.uhf.protocol.cmd.CmdFrame;
 import com.boogoob.uhf.protocol.type.DeviceInfoType;
 import com.boogoob.uhf.protocol.utils.ConvertUtils;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.ReadableMap;
 
 import com.example.serialportuhf.aidl.IUhfListener;
 import com.example.serialportuhf.aidl.IUhfService;
@@ -30,6 +37,8 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
 
+  private RespAndNotifyFactory factory = new RespAndNotifyFactory();
+  private RespAndNotifyHandler protocolHandler = getProtocolHandler();
   private IUhfService uhfService; // 注意可能为null
 
   public RNUhfModule(ReactApplicationContext reactContext) {
@@ -85,15 +94,17 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
     public void onResponse(byte[] resp) throws RemoteException
     {
       logger.info(ConvertUtils.bytesToString(resp));
-//      List<RespOrNotifyFrame> msgList = factory.receive(resp);
-//      for (RespOrNotifyFrame frame : msgList)
-//      {
-//        showResult(frame.toBytes());
-//        logger.info(frame.getClass().getSimpleName());
-//        frame.handleBy(protocolHandler);
-//      }
+      List<RespOrNotifyFrame> msgList = factory.receive(resp);
+      for (RespOrNotifyFrame frame : msgList)
+      {
+        showResult(frame.toBytes());
+        logger.info(frame.getClass().getSimpleName());
+        frame.handleBy(protocolHandler);
+      }
     }
   };
+
+  private abstract RespAndNotifyHandler getProtocolHandler();// 子类必须覆盖此方法以处理返回数据
 
   private boolean write(CmdFrame cmd) {
     if (uhfService != null && cmd != null) {
@@ -137,6 +148,13 @@ public class RNUhfModule extends ReactContextBaseJavaModule {
     write(new CmdDeviceInfo(DeviceInfoType.MANUFACTURER));
   }
 
+  @ReactMethod
+  public void showResult(byte[] bytes){
+    String s = new String(bytes);
+    WritableMap params = Arguments.createMap();
+    params.putString("data", s);
+    this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("showResult", params);
+  }
 
 
 }

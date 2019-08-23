@@ -8,7 +8,7 @@
 
 import React, {Component} from 'react';
 import {
-  SafeAreaView,
+  DeviceEventEmitter,
   StyleSheet,
   ScrollView,
   View,
@@ -19,6 +19,16 @@ import {
 import RNUhf from 'react-native-uhf-sdk';
 
 export default class App extends Component {
+
+  componentDidMount() {
+    DeviceEventEmitter.addListener('showResult', (data) => {
+      console.log('showResult',data);
+    });
+  }
+
+  componentWillUnmount() {
+
+  }
 
   onPressFirmware() {
     console.log("init");

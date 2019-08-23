@@ -13,6 +13,7 @@ import com.facebook.soloader.SoLoader;
 
 import com.xmky.uhf.RNUhfPackage;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class MainApplication extends Application implements ReactApplication {
@@ -25,11 +26,11 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     protected List<ReactPackage> getPackages() {
-      @SuppressWarnings("UnnecessaryLocalVariable")
+      //@SuppressWarnings("UnnecessaryLocalVariable")
       List<ReactPackage> packages = new PackageList(this).getPackages();
       // Packages that cannot be autolinked yet can be added manually here, for example:
       // packages.add(new MyReactNativePackage());
-      packages.add(new RNUhfPackage());
+      //packages.add(new RNUhfPackage());
       return packages;
     }
 
