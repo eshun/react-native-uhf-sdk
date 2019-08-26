@@ -1,5 +1,5 @@
-package com.example.serialportuhf.aidl;
-import com.example.serialportuhf.aidl.IUhfListener;
+package com.boogoob.uhf.aidl;
+import com.boogoob.uhf.aidl.IUhfListener;
 
 interface IUhfService
 {

@@ -10,6 +10,9 @@ export default {
     getFirmware: function () {
         return RNUhf.getFirmware();
     },
+    getEpc: function () {
+        return RNUhf.getEpc();
+    },
     showResult:function (callback) {
         if (!listener && callback && typeof callback === "function") {
             DeviceEventEmitter.addListener('showResult', (ret) => callback(ret.data));

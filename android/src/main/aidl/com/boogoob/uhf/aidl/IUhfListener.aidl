@@ -1,4 +1,4 @@
-package com.example.serialportuhf.aidl;
+package com.boogoob.uhf.aidl;
 
 interface IUhfListener
 {

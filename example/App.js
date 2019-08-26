@@ -34,6 +34,10 @@ export default class App extends Component {
     RNUhf.getFirmware();
 
   }
+  onStartScan() {
+    console.log("scan");
+    RNUhf.getEpc();
+  }
 
   render() {
     return (
@@ -48,8 +52,14 @@ export default class App extends Component {
                   color="#841584"
               />
 
+              <Button
+                  onPress={this.onStartScan}
+                  title="start scan"
+                  color="#841584"
+              />
+
               <Text style={styles.sectionDescription}>
-                Edit
+                Receive Data
               </Text>
             </View>
           </View>
