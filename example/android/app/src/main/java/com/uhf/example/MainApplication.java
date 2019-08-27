@@ -8,7 +8,7 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.hermes.reactexecutor.HermesExecutorFactory;
 import com.facebook.react.bridge.JavaScriptExecutorFactory;
 import com.facebook.react.ReactApplication;
-import com.uhf.RNUhfPackage;
+import com.uhf.sdk.RNUhfPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
