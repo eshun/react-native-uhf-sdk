@@ -20,7 +20,7 @@ import RNUhf from 'react-native-uhf-sdk';
 export default class App extends Component {
 
   componentDidMount() {
-    RNUhf.showResult((data)=>{
+    RNUhf.init((data)=>{
         console.log("showResult",data);
     })
   }

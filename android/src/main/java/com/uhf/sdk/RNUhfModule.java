@@ -92,12 +92,10 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
 
   private void unbindService() {
     try {
-      if (uhfService != null)
-      {
+      if (uhfService != null) {
         uhfService.setListener(null);
       }
-    } catch (RemoteException e)
-    {
+    } catch (RemoteException e) {
       logger.error(ExceptionUtils.getStackTrace(e));
     }
     reactContext.getApplicationContext().unbindService(serviceConnection);
@@ -123,14 +121,14 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-      logger.info("on Service Connected!");
+      showResult("on Service Connected!");
       try {
         uhfService = IUhfService.Stub.asInterface(service);
         uhfService.setListener(listener);
         if (uhfService.isPowerOn()) {
-
+          showResult("power on!");
         } else {
-
+          showResult("power off!");
         }
       } catch (RemoteException e) {
         logger.error(ExceptionUtils.getStackTrace(e));
@@ -139,7 +137,7 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-      logger.info("on Service DisConnected!");
+      showResult("on Service DisConnected!");
       uhfService = null;
     }
 
@@ -148,40 +146,94 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
   private IUhfListener listener = new IUhfListener.Stub() {
 
     @Override
-    public void onPowerOn() throws RemoteException
-    {
-      logger.info("power on");
+    public void onPowerOn() throws RemoteException {
+      showResult("on power on!");
     }
 
     @Override
-    public void onPowerOff() throws RemoteException
-    {
-      logger.info("power off");
+    public void onPowerOff() throws RemoteException {
+      showResult("on power off!");
     }
 
     @Override
-    public void onResponse(byte[] resp) throws RemoteException
-    {
-      String s=ConvertUtils.bytesToString(resp);
-      logger.error("onResponse:"+s);
+    public void onResponse(byte[] resp) throws RemoteException {
+      String s = ConvertUtils.bytesToString(resp);
+      logger.info("onResponse:" + s);
       List<RespOrNotifyFrame> msgList = factory.receive(resp);
-      for (RespOrNotifyFrame frame : msgList)
-      {
+      for (RespOrNotifyFrame frame : msgList) {
         logger.info(frame.getClass().getSimpleName());
-        //showResult(reactContext, frame.toBytes());
         frame.handleBy(protocolHandler);
       }
     }
   };
 
-  private RespAndNotifyHandler getProtocolHandler()
-  {
+  private RespAndNotifyHandler getProtocolHandler() {
     return new RespAndNotifyHandler() {
       @Override
-      public void handle(RespDeviceInfo resp)
+      public void handle(RespDeviceInfo resp) {
+        String data = resp.getInfoType() + " " + resp.getInfo();
+
+        showResult(data);
+      }
+
+      @Override
+      public void handle(RespPollingSingle resp) {
+
+      }
+
+      @Override
+      public void handle(RespPollingStop resp)
       {
-        logger.error("getInfo:"+resp.getInfo());
-        logger.info(resp.getInfoType() + " " + resp.getInfo());
+        logger.info("polling stop result!"+System.currentTimeMillis());
+      }
+
+      public void handle(RespTagSelect resp) //first
+      {
+        logger.info(resp.isSuccess()+" tag select result"+System.currentTimeMillis());
+        if (resp.isSuccess())
+        {
+          write(new CmdSelectModeSet(2));
+        } else
+        {
+          //onFail();
+        }
+      }
+
+      public void handle(RespSelectModeSet resp) //second
+      {
+        logger.info("read data select:"+ System.currentTimeMillis());
+        if (resp.isSuccess())
+        {
+//          if (cmdAfterSelect != null)
+//          {
+//            write(cmdAfterSelect);
+//            isPollingNoResp = true;
+//            handler.removeCallbacks(current);
+//            handler.postDelayed(current, 100L);
+//            cmdAfterSelect = null;
+//          }
+        } else
+        {
+          //onFail();
+        }
+      }
+
+      @Override
+      public void handle(final RespTagDataRead resp) //third
+      {
+        logger.info("read data result:"+ System.currentTimeMillis());
+      }
+
+      @Override
+      public void handle(final RespTagDataWrite resp)
+      {
+        logger.info("write data success:"+ System.currentTimeMillis());
+      }
+
+      @Override
+      public void handle(final RespTagDataError resp)
+      {
+        logger.info("tag data error:"+ System.currentTimeMillis());
       }
     };
   }
@@ -213,24 +265,29 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
     return false;
   }
 
-  public void init() {
-    if (uhfService == null) {
-      String packageName = "com.example.serialportuhf";//reactContext.getPackageName()  IUhfService.class.getPackage().getName()
-      String className = "com.example.serialportuhf.aidl.IUhfService";//IUhfService.class.getName();
-      logger.info("init："+packageName+"-"+className);
+  public boolean init() {
+    //if (uhfService == null) {
+    String packageName = "com.example.serialportuhf";
+    String className = IUhfService.class.getName();
+    logger.info("init：" + packageName + "-" + className);
 
-      Intent intent = new Intent();
-      //intent.setComponent(new ComponentName(packageName, className));
-      intent.setAction(className);
-      intent.setPackage(packageName);
+    Intent intent = new Intent();
+    intent.setAction(className);
+    intent.setPackage(packageName);
 
-      boolean isBind=bindService(intent);
-      logger.info(String.valueOf(isBind));
-    }
+    boolean isBind = bindService(intent);
+    logger.info(String.valueOf(isBind));
+    return isBind;
+    //}
   }
 
   @ReactMethod
-  public void pause(){
+  public boolean reset(){
+    return init();
+  }
+
+  @ReactMethod
+  public void pause() {
     unbindService();
   }
 
@@ -240,7 +297,7 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
   }
 
   @ReactMethod
-  public boolean getVersionInfo() {
+  public boolean getVersion() {
     return write(new CmdDeviceInfo(DeviceInfoType.SOFTWARE));
   }
 
@@ -250,16 +307,15 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
   }
 
   @ReactMethod
-  public boolean getEpc(){
-    byte[] cmd = {(byte) 0xBB,0x00,0x22,0x00,0x00,0x22,0x7E};
+  public boolean getEpc() {
+    byte[] cmd = {(byte) 0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
     return write(cmd);
   }
 
-  private void showResult(ReactApplicationContext reactContext,byte[] bytes) {
-    String s = ConvertUtils.bytesToString(bytes);
-    logger.error("showResult:" + s);
+  private void showResult(String data) {
+    logger.info(data);
     WritableMap params = Arguments.createMap();
-    params.putString("data", s);
+    params.putString("data", data);
     reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("showResult", params);
   }
 
