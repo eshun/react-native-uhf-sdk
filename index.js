@@ -15,7 +15,7 @@ export default {
     },
     showResult:function (callback) {
         if (!listener && callback && typeof callback === "function") {
-            DeviceEventEmitter.addListener('showResult', (ret) => callback(ret.data));
+            listener = DeviceEventEmitter.addListener('showResult', (ret) => callback(ret.data));
         }
     }
 }
