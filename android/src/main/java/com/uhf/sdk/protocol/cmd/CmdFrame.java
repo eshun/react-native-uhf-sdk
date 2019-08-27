@@ -1,7 +1,7 @@
-package com.uhf.protocol.sdk.cmd;
+package com.uhf.sdk.protocol.cmd;
 
-import com.uhf.protocol.sdk.AbstractCommand;
-import com.uhf.protocol.sdk.type.FrameType;
+import com.uhf.sdk.protocol.AbstractCommand;
+import com.uhf.sdk.protocol.type.FrameType;
 
 public abstract class CmdFrame extends AbstractCommand
 {

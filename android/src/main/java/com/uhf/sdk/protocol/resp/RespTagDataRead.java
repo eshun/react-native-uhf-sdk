@@ -1,9 +1,9 @@
-package com.uhf.protocol.sdk.resp;
+package com.uhf.sdk.protocol.resp;
 
 import org.apache.commons.lang3.ArrayUtils;
-import com.uhf.protocol.sdk.RespAndNotifyHandler;
-import com.uhf.protocol.sdk.type.CommandType;
-import com.uhf.protocol.sdk.utils.ConvertUtils;
+import com.uhf.sdk.protocol.RespAndNotifyHandler;
+import com.uhf.sdk.protocol.type.CommandType;
+import com.uhf.sdk.protocol.utils.ConvertUtils;
 
 public class RespTagDataRead extends RespFrame
 {

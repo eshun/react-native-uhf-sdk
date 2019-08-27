@@ -1,7 +1,7 @@
-package com.uhf.protocol.sdk.cmd;
+package com.uhf.sdk.protocol.cmd;
 
-import com.uhf.protocol.sdk.type.CommandType;
-import com.uhf.protocol.sdk.type.WorkRegionType;
+import com.uhf.sdk.protocol.type.CommandType;
+import com.uhf.sdk.protocol.type.WorkRegionType;
 
 public class CmdWorkRegionSet extends CmdFrame
 {

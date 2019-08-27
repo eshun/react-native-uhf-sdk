@@ -1,4 +1,4 @@
-package com.uhf.protocol.sdk.type;
+package com.uhf.sdk.protocol.type;
 
 public enum PreloadStep
 {

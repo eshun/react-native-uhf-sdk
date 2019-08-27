@@ -1,12 +1,12 @@
-package com.uhf.protocol;
+package com.uhf.sdk.protocol;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.ArrayUtils;
-import com.uhf.protocol.sdk.type.CommandType;
-import com.uhf.protocol.sdk.type.FrameType;
-import com.uhf.protocol.sdk.utils.ConvertUtils;
+import com.uhf.sdk.protocol.type.CommandType;
+import com.uhf.sdk.protocol.type.FrameType;
+import com.uhf.sdk.protocol.utils.ConvertUtils;
 
 public class RespAndNotifyFactory
 {

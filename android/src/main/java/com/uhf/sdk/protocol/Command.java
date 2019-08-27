@@ -1,7 +1,7 @@
-package com.uhf.protocol;
+package com.uhf.sdk.protocol;
 
-import com.uhf.protocol.sdk.type.CommandType;
-import com.uhf.protocol.sdk.type.FrameType;
+import com.uhf.sdk.protocol.type.CommandType;
+import com.uhf.sdk.protocol.type.FrameType;
 
 public interface Command
 {

@@ -1,6 +1,6 @@
-package com.uhf.protocol.sdk.cmd;
+package com.uhf.sdk.protocol.cmd;
 
-import com.uhf.protocol.sdk.type.CommandType;
+import com.uhf.sdk.protocol.type.CommandType;
 
 public class CmdPaPowerSet extends CmdFrame
 {

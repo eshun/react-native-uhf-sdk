@@ -1,6 +1,6 @@
-package com.uhf.protocol;
+package com.uhf.sdk.protocol;
 
-import com.uhf.protocol.sdk.utils.ConvertUtils;
+import com.uhf.sdk.protocol.utils.ConvertUtils;
 
 public abstract class AbstractCommand implements Command
 {

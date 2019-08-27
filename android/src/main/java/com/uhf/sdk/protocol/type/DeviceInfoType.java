@@ -1,4 +1,4 @@
-package com.uhf.protocol.sdk.type;
+package com.uhf.sdk.protocol.type;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,8 +1,8 @@
-package com.uhf.protocol.sdk.resp;
+package com.uhf.sdk.protocol.resp;
 
-import com.uhf.protocol.sdk.AbstractCommand;
-import com.uhf.protocol.sdk.RespOrNotifyFrame;
-import com.uhf.protocol.sdk.type.FrameType;
+import com.uhf.sdk.protocol.AbstractCommand;
+import com.uhf.sdk.protocol.RespOrNotifyFrame;
+import com.uhf.sdk.protocol.type.FrameType;
 
 public abstract class RespFrame extends RespOrNotifyFrame
 {

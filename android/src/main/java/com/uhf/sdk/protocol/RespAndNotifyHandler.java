@@ -1,23 +1,23 @@
-package com.uhf.protocol;
+package com.uhf.sdk.protocol;
 
-import com.uhf.protocol.sdk.resp.RespDeviceInfo;
-import com.uhf.protocol.sdk.resp.RespFreqHopping;
-import com.uhf.protocol.sdk.resp.RespModemGet;
-import com.uhf.protocol.sdk.resp.RespModemSet;
-import com.uhf.protocol.sdk.resp.RespPaPowerGet;
-import com.uhf.protocol.sdk.resp.RespPaPowerSet;
-import com.uhf.protocol.sdk.resp.RespPollingSingle;
-import com.uhf.protocol.sdk.resp.RespPollingStop;
-import com.uhf.protocol.sdk.resp.RespRfInputBlock;
-import com.uhf.protocol.sdk.resp.RespRfInputRssi;
-import com.uhf.protocol.sdk.resp.RespSelectModeSet;
-import com.uhf.protocol.sdk.resp.RespTagDataError;
-import com.uhf.protocol.sdk.resp.RespTagDataRead;
-import com.uhf.protocol.sdk.resp.RespTagDataWrite;
-import com.uhf.protocol.sdk.resp.RespTagSelect;
-import com.uhf.protocol.sdk.resp.RespWorkChannelGet;
-import com.uhf.protocol.sdk.resp.RespWorkChannelSet;
-import com.uhf.protocol.sdk.resp.RespWorkRegion;
+import com.uhf.sdk.protocol.resp.RespDeviceInfo;
+import com.uhf.sdk.protocol.resp.RespFreqHopping;
+import com.uhf.sdk.protocol.resp.RespModemGet;
+import com.uhf.sdk.protocol.resp.RespModemSet;
+import com.uhf.sdk.protocol.resp.RespPaPowerGet;
+import com.uhf.sdk.protocol.resp.RespPaPowerSet;
+import com.uhf.sdk.protocol.resp.RespPollingSingle;
+import com.uhf.sdk.protocol.resp.RespPollingStop;
+import com.uhf.sdk.protocol.resp.RespRfInputBlock;
+import com.uhf.sdk.protocol.resp.RespRfInputRssi;
+import com.uhf.sdk.protocol.resp.RespSelectModeSet;
+import com.uhf.sdk.protocol.resp.RespTagDataError;
+import com.uhf.sdk.protocol.resp.RespTagDataRead;
+import com.uhf.sdk.protocol.resp.RespTagDataWrite;
+import com.uhf.sdk.protocol.resp.RespTagSelect;
+import com.uhf.sdk.protocol.resp.RespWorkChannelGet;
+import com.uhf.sdk.protocol.resp.RespWorkChannelSet;
+import com.uhf.sdk.protocol.resp.RespWorkRegion;
 
 public class RespAndNotifyHandler
 {

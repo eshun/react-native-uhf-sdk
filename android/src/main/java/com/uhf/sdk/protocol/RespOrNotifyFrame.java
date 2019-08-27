@@ -1,4 +1,4 @@
-package com.uhf.protocol;
+package com.uhf.sdk.protocol;
 
 public abstract class RespOrNotifyFrame extends AbstractCommand
 {

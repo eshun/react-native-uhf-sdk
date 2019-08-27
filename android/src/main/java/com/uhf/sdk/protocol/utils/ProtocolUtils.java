@@ -1,4 +1,4 @@
-package com.uhf.protocol.sdk.utils;
+package com.uhf.sdk.protocol.utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
