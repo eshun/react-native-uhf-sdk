@@ -6,35 +6,63 @@ const { RNUhf } = NativeModules;
 //export default RNUhf;
 let listener=null;
 
+let defaultOptions={
+    info:function (data) {
+        
+    },
+    scan:function (data) {
+        
+    },
+    fail:function (err) {
+        
+    }
+};
 
 export default {
-    init: function(callback) {
-        if (!listener && callback && typeof callback === "function") {
-            listener = DeviceEventEmitter.addListener('showResult', (ret) => callback(ret.data));
+    init: function(options) {
+        Object.assign(defaultOptions, options);
+
+        if (!listener) {
+            listener = DeviceEventEmitter.addListener('uhfEvent', (ret) => {
+                if (ret.info) {
+                    defaultOptions.info(ret.info);
+                } else if (ret.scan) {
+                    defaultOptions.scan(ret.scan);
+                } else if (ret.err) {
+                    defaultOptions.fail(ret.err);
+                }
+            });
         }
     },
+    destroy: function() {
+        listener = null;
+        RNUhf.pause();
+    },
     reset: function () {
-        return RNUhf.reset();
+        RNUhf.reset();
     },
     getFirmware: function () {
-        return RNUhf.getFirmware();
+        RNUhf.getFirmware();
     },
     getVersion: function () {
-        return RNUhf.getVersion();
+        RNUhf.getVersion();
     },
     getMakerInfo: function () {
-        return RNUhf.getMakerInfo();
+        RNUhf.getMakerInfo();
     },
     getEpc: function () {
         return RNUhf.getEpc();
     },
-    startScan: function () {
-
+    scan: function () {
+        return RNUhf.scan();
     },
-    stopScan: function () {
-
+    stop: function () {
+        return RNUhf.stop();
     },
-    setWorkArea: function () {
-
+    getPower: function () {
+        RNUhf.getPower();
     },
+    setPower: function (power) {
+        RNUhf.setPower(power);
+    }
 }

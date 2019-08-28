@@ -26,6 +26,8 @@ import com.uhf.sdk.protocol.cmd.CmdSelectModeSet;
 import com.uhf.sdk.protocol.cmd.CmdTagDataRead;
 import com.uhf.sdk.protocol.cmd.CmdTagDataWrite;
 import com.uhf.sdk.protocol.cmd.CmdTagSelect;
+import com.uhf.sdk.protocol.cmd.CmdPaPowerGet;
+import com.uhf.sdk.protocol.cmd.CmdPaPowerSet;
 import com.uhf.sdk.protocol.type.DeviceInfoType;
 import com.uhf.sdk.protocol.utils.ConvertUtils;
 import com.uhf.sdk.protocol.resp.RespDeviceInfo;
@@ -36,6 +38,8 @@ import com.uhf.sdk.protocol.resp.RespTagDataError;
 import com.uhf.sdk.protocol.resp.RespTagDataRead;
 import com.uhf.sdk.protocol.resp.RespTagDataWrite;
 import com.uhf.sdk.protocol.resp.RespTagSelect;
+import com.uhf.sdk.protocol.resp.RespPaPowerGet;
+import com.uhf.sdk.protocol.resp.RespPaPowerSet;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -65,6 +69,9 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
   private RespAndNotifyFactory factory = new RespAndNotifyFactory();
   private RespAndNotifyHandler protocolHandler = getProtocolHandler();
   private IUhfService uhfService; // 注意可能为null
+  private boolean isScanning = false;
+  private boolean isMultiScan = false;
+  private Thread thread;
 
   public RNUhfModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -121,14 +128,14 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-      showResult("on Service Connected!");
+      showInfo("on Service Connected!");
       try {
         uhfService = IUhfService.Stub.asInterface(service);
         uhfService.setListener(listener);
         if (uhfService.isPowerOn()) {
-          showResult("power on!");
+          showInfo("power on!");
         } else {
-          showResult("power off!");
+          showInfo("power off!");
         }
       } catch (RemoteException e) {
         logger.error(ExceptionUtils.getStackTrace(e));
@@ -137,7 +144,7 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-      showResult("on Service DisConnected!");
+      showInfo("on Service DisConnected!");
       uhfService = null;
     }
 
@@ -147,12 +154,12 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
 
     @Override
     public void onPowerOn() throws RemoteException {
-      showResult("on power on!");
+      showInfo("on power on!");
     }
 
     @Override
     public void onPowerOff() throws RemoteException {
-      showResult("on power off!");
+      showInfo("on power off!");
     }
 
     @Override
@@ -173,83 +180,80 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
       public void handle(RespDeviceInfo resp) {
         String data = resp.getInfoType() + " " + resp.getInfo();
 
-        showResult(data);
+        showInfo(data);
       }
 
       @Override
       public void handle(RespPollingSingle resp) {
-
-      }
-
-      @Override
-      public void handle(RespPollingStop resp)
-      {
-        logger.info("polling stop result!"+System.currentTimeMillis());
-      }
-
-      public void handle(RespTagSelect resp) //first
-      {
-        logger.info(resp.isSuccess()+" tag select result"+System.currentTimeMillis());
-        if (resp.isSuccess())
-        {
-          write(new CmdSelectModeSet(2));
-        } else
-        {
-          //onFail();
-        }
-      }
-
-      public void handle(RespSelectModeSet resp) //second
-      {
-        logger.info("read data select:"+ System.currentTimeMillis());
-        if (resp.isSuccess())
-        {
-//          if (cmdAfterSelect != null)
-//          {
-//            write(cmdAfterSelect);
-//            isPollingNoResp = true;
-//            handler.removeCallbacks(current);
-//            handler.postDelayed(current, 100L);
-//            cmdAfterSelect = null;
-//          }
-        } else
-        {
-          //onFail();
+        String epc = ConvertUtils.integerToString(resp.getEpc());
+        if (isScanning) {
+          if (!isMultiScan) {
+            isScanning = false;
+          }
+          showScan(epc);
         }
       }
 
       @Override
-      public void handle(final RespTagDataRead resp) //third
-      {
-        logger.info("read data result:"+ System.currentTimeMillis());
+      public void handle(RespPollingStop resp) {
+        logger.info("polling stop result!" + System.currentTimeMillis());
+        isScanning = false;
+        isMultiScan = false;
       }
 
       @Override
-      public void handle(final RespTagDataWrite resp)
-      {
-        logger.info("write data success:"+ System.currentTimeMillis());
+      public void handle(RespPaPowerGet resp) {
+        String power = resp.getPaPower() / 100 + " dBm";
+        showInfo(power);
       }
 
       @Override
-      public void handle(final RespTagDataError resp)
-      {
-        logger.info("tag data error:"+ System.currentTimeMillis());
+      public void handle(RespPaPowerSet resp) {
+        if (resp.isSuccess()) {
+          showInfo("set power success!");
+
+        } else {
+          showFail("set power fail!");
+        }
+      }
+
+      @Override
+      public void handle(RespTagDataError resp) {
+        showFail("data error code:" + resp.getErrorCode());
+        if(isScanning&&!isMultiScan) {
+          isScanning = false;
+          getEpc();
+        }
       }
     };
   }
 
-  private boolean write(CmdFrame cmd) {
-    if (uhfService != null && cmd != null) {
+  private void write(final CmdFrame cmd) {
+    if (cmd != null) {
+      logger.info("write: "
+              + ConvertUtils.bytesToString(cmd.toBytes()));
+
       try {
-        logger.info("write: "
-                + ConvertUtils.bytesToString(cmd.toBytes()));
-        uhfService.write(cmd.toBytes());
-        return true;
-      } catch (RemoteException e) {
-        logger.error(ExceptionUtils.getStackTrace(e));
+        thread = new Thread(new Runnable() {
+          @Override
+          public void run() {
+            boolean toStop = false;
+            while (!isScanning && !toStop) {
+              toStop = true;
+              write(cmd.toBytes());
+              try {
+                thread.join();
+              } catch (Exception e) {
+
+              }
+            }
+          }
+        });
+        thread.start();
+      } catch (Exception e) {
+
       }
     }
-    return false;
   }
 
   private boolean write(byte[] array) {
@@ -277,47 +281,115 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
 
     boolean isBind = bindService(intent);
     logger.info(String.valueOf(isBind));
+    if(!isBind){
+      showFail("on Service Fail");
+    }
     return isBind;
     //}
   }
 
   @ReactMethod
   public boolean reset(){
+    if (isScanning) {
+      stop();
+    }
     return init();
   }
 
   @ReactMethod
   public void pause() {
+    if (isScanning) {
+      stop();
+    }
     unbindService();
   }
 
   @ReactMethod
-  public boolean getFirmware() {
-    return write(new CmdDeviceInfo(DeviceInfoType.HARDWARE));
+  public void getFirmware() {
+    if (isScanning) {
+      stop();
+    }
+    write(new CmdDeviceInfo(DeviceInfoType.HARDWARE));
   }
 
   @ReactMethod
-  public boolean getVersion() {
-    return write(new CmdDeviceInfo(DeviceInfoType.SOFTWARE));
+  public void getVersion() {
+    if (isScanning) {
+      stop();
+    }
+    write(new CmdDeviceInfo(DeviceInfoType.SOFTWARE));
   }
 
   @ReactMethod
-  public boolean getMakerInfo() {
-    return write(new CmdDeviceInfo(DeviceInfoType.MANUFACTURER));
+  public void getMakerInfo() {
+    if (isScanning) {
+      stop();
+    }
+    write(new CmdDeviceInfo(DeviceInfoType.MANUFACTURER));
   }
 
   @ReactMethod
   public boolean getEpc() {
     byte[] cmd = {(byte) 0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
-    return write(cmd);
+    if (!isScanning) {
+      isScanning = true;
+      isMultiScan = false;
+      return write(cmd);
+    }
+    return false;
   }
 
-  private void showResult(String data) {
+  @ReactMethod
+  public boolean scan() {
+    if (!isScanning && !isMultiScan) {
+      isScanning = true;
+      isMultiScan = true;
+      byte[] bytes=new CmdPollingMulti(10000).toBytes();
+      return write(bytes);
+    }
+    return false;
+  }
+
+  @ReactMethod
+  public boolean stop() {
+    isScanning = false;
+    isMultiScan = false;
+    byte[] bytes = new CmdPollingStop().toBytes();
+    return write(bytes);
+  }
+
+  @ReactMethod
+  public void getPower() {
+    if (isScanning) {
+      stop();
+    }
+    write(new CmdPaPowerGet());
+  }
+
+  @ReactMethod
+  public void setPower(int power) {
+    if (isScanning) {
+      stop();
+    }
+    write(new CmdPaPowerSet(power * 100));
+  }
+
+  private void showInfo(String data) {
     logger.info(data);
-    WritableMap params = Arguments.createMap();
-    params.putString("data", data);
-    reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("showResult", params);
+    sendEvent("info",data);
   }
-
+  private void showScan(String data) {
+    logger.info(data);
+    sendEvent("scan",data);
+  }
+  private void showFail(String data) {
+    logger.warn​(data);
+    sendEvent("err",data);
+  }
+  private void sendEvent(String key,String data){
+    WritableMap params = Arguments.createMap();
+    params.putString(key, data);
+    reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("uhfEvent", params);
+  }
 
 }

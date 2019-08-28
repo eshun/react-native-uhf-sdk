@@ -20,9 +20,17 @@ import RNUhf from 'react-native-uhf-sdk';
 export default class App extends Component {
 
   componentDidMount() {
-    RNUhf.init((data)=>{
-        console.log("showResult",data);
-    })
+    RNUhf.init({
+      info: function (data) {
+        console.log("info", data);
+      },
+      scan: function (data) {
+        console.log("scan", data);
+      },
+      fail: function (err) {
+        console.log("fail", err);
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -30,13 +38,11 @@ export default class App extends Component {
   }
 
   onPressFirmware() {
-    console.log("init");
     RNUhf.getFirmware();
-
   }
   onStartScan() {
-    console.log("scan");
-    RNUhf.getEpc();
+    RNUhf.getPower();
+    //RNUhf.setPower(10);
   }
 
   render() {
