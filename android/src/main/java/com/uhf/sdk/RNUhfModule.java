@@ -13,6 +13,9 @@ import android.os.RemoteException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 
 import com.uhf.sdk.protocol.RespAndNotifyFactory;
 import com.uhf.sdk.protocol.RespAndNotifyHandler;
@@ -331,6 +334,7 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
   @ReactMethod
   public boolean getEpc() {
     byte[] cmd = {(byte) 0xBB, 0x00, 0x22, 0x00, 0x00, 0x22, 0x7E};
+    //new CmdPollingSingle()
     if (!isScanning) {
       isScanning = true;
       isMultiScan = false;
@@ -372,6 +376,17 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
       stop();
     }
     write(new CmdPaPowerSet(power * 100));
+  }
+
+  @ReactMethod
+  public void play() {
+    try {
+      Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+      Ringtone r = RingtoneManager.getRingtone(reactContext, notification);
+      r.play();
+    } catch (Exception e) {
+
+    }
   }
 
   private void showInfo(String data) {

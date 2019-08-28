@@ -41,8 +41,12 @@ export default class App extends Component {
     RNUhf.getFirmware();
   }
   onStartScan() {
+    //RNUhf.getEpc();
+    //RNUhf.getPower();
+    RNUhf.setPower(27);
+  }
+  onPower() {
     RNUhf.getPower();
-    //RNUhf.setPower(10);
   }
 
   render() {
@@ -61,6 +65,11 @@ export default class App extends Component {
               <Button
                   onPress={this.onStartScan}
                   title="start scan"
+                  color="#841584"
+              />
+              <Button
+                  onPress={this.onPower}
+                  title="get power"
                   color="#841584"
               />
 

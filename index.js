@@ -8,13 +8,13 @@ let listener=null;
 
 let defaultOptions={
     info:function (data) {
-        
+
     },
     scan:function (data) {
-        
+
     },
     fail:function (err) {
-        
+
     }
 };
 
@@ -62,7 +62,14 @@ export default {
     getPower: function () {
         RNUhf.getPower();
     },
+    /**
+     * 最小值15，最大值26
+     * @param power
+     */
     setPower: function (power) {
         RNUhf.setPower(power);
+    },
+    play: function () {
+        RNUhf.play();
     }
 }
