@@ -26,13 +26,57 @@
   	```
       compile project(':react-native-uhf-sdk')
   	```
-
+4. Open up `android/app/src/main/java/[...]/MainActivity.java`
+    ```
+   public class MainActivity extends ReactActivity {
+         ......
+        @Override
+        public boolean onKeyDown(int keyCode, KeyEvent event){
+            RNUhfModule.getInstance().onKeyDownEvent(keyCode,event);
+            return super.onKeyDown(keyCode,event);
+        }
+    
+        @Override
+        public boolean onKeyUp(int keyCode, KeyEvent event){
+            RNUhfModule.getInstance().onKeyUpEvent(keyCode,event);
+            return super.onKeyUp(keyCode,event);
+        }
+        ......
+   }
+    ```
 
 ## Usage
 ```javascript
 import RNUhf from 'react-native-uhf-sdk';
 
 // TODO: What to do with the module?
-RNUhf;
+componentDidMount() {
+    RNUhf.init({
+      info: (data) => {
+        console.log("info", data);
+      },
+      scan: (data) => {
+        console.log("scan", data);
+      },
+      fail: (err) => {
+        console.log("fail", err);
+      },
+      onKeyDown: (keyCode,keyEvent) => {
+        console.log(keyCode,scanKey,scanKeyCode);
+      },
+      onKeyUp:(keyCode,keyEvent) => {
+        console.log(keyCode,scanKey,scanKeyCode);
+      }
+    });
+}
+
+RNUhf.getFirmware()
+RNUhf.getVersion()
+RNUhf.getMakerInfo()
+RNUhf.getEpc()
+RNUhf.scan()
+RNUhf.stop()
+RNUhf.getPower()
+RNUhf.setPower(power)
 ```
   
