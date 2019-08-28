@@ -13,22 +13,41 @@ import {
   View,
   Text,
   Button,
+  Slider,
+  ToastAndroid,
 } from 'react-native';
 
 import RNUhf from 'react-native-uhf-sdk';
 
+let isMultiScan=false;
 export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      info: null,
+    };
+  }
 
   componentDidMount() {
     RNUhf.init({
-      info: function (data) {
+      info: (data) => {
+        ToastAndroid.show(data, ToastAndroid.SHORT);
         console.log("info", data);
+        this.setState({
+          info: data
+        });
       },
-      scan: function (data) {
+      scan: (data) => {
         console.log("scan", data);
+        this.setState({
+          info: data
+        });
       },
-      fail: function (err) {
+      fail: (err) => {
         console.log("fail", err);
+        this.setState({
+          info: err
+        });
       }
     });
   }
@@ -40,41 +59,105 @@ export default class App extends Component {
   onPressFirmware() {
     RNUhf.getFirmware();
   }
+  onPressVersion() {
+    RNUhf.getVersion();
+  }
+  onPressMakerInfo() {
+    RNUhf.getMakerInfo();
+  }
   onStartScan() {
-    //RNUhf.getEpc();
-    //RNUhf.getPower();
-    RNUhf.setPower(27);
+    RNUhf.getEpc();
+  }
+  onMultiScan() {
+    if (isMultiScan) {
+      isMultiScan = false;
+      RNUhf.stop();
+    } else {
+      isMultiScan = true;
+      RNUhf.scan();
+    }
   }
   onPower() {
     RNUhf.getPower();
   }
+  onPowerChange =(value)=>{
+    RNUhf.setPower(value);
+  };
 
   render() {
+    const {info} = this.state;
+    const scanTitle = isMultiScan ? 'stop' : 'multi scan';
+
     return (
         <ScrollView
             contentInsetAdjustmentBehavior="automatic"
             style={styles.scrollView}>
           <View style={styles.body}>
             <View style={styles.sectionContainer}>
-              <Button
-                  onPress={this.onPressFirmware}
-                  title="getFirmware"
-                  color="#841584"
-              />
-
-              <Button
-                  onPress={this.onStartScan}
-                  title="start scan"
-                  color="#841584"
-              />
-              <Button
-                  onPress={this.onPower}
-                  title="get power"
-                  color="#841584"
-              />
-
-              <Text style={styles.sectionDescription}>
+              <View style={{flexDirection: 'row'}}>
+                <View style={{width: '50%', marginRight: 4}}>
+                  <Button
+                      onPress={this.onPressFirmware}
+                      title="firmware"
+                      color="#841584"
+                  />
+                </View>
+                <View style={{width: '50%', marginLeft: 4}}>
+                  <Button
+                      onPress={this.onPressVersion}
+                      title="version"
+                      color="#841584"
+                  />
+                </View>
+              </View>
+              <View style={{flexDirection: 'row', marginTop: 8}}>
+                <View style={{width: '50%', marginRight: 4}}>
+                  <Button
+                      onPress={this.onPressMakerInfo}
+                      title="maker info"
+                      color="#841584"
+                  /></View>
+                <View style={{width: '50%', marginLeft: 4}}>
+                  <Button
+                      onPress={this.onPower}
+                      title="get power"
+                      color="#841584"
+                  />
+                </View>
+              </View>
+              <View style={{marginTop: 8}}>
+                <Slider style={{width: 280}}
+                        minimumValue={15}
+                        maximumValue={26}
+                        value={26}
+                        onValueChange={this.onPowerChange}
+                />
+              </View>
+            </View>
+            <View style={styles.sectionContainer}>
+              <View style={{flexDirection: 'row'}}>
+                <View style={{width: '50%', marginRight: 4}}>
+                  <Button
+                      onPress={this.onMultiScan}
+                      title={scanTitle}
+                      color="#841584"
+                  />
+                </View>
+                <View style={{width: '50%', marginLeft: 4}}>
+                  <Button
+                      onPress={this.onStartScan}
+                      title="start scan"
+                      color="#841584"
+                  />
+                </View>
+              </View>
+            </View>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionHeader}>
                 Receive Data
+              </Text>
+              <Text style={styles.sectionDescription}>
+                {info}
               </Text>
             </View>
           </View>
@@ -91,13 +174,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   sectionContainer: {
-    marginTop: 32,
+    marginTop: 8,
     paddingHorizontal: 24,
   },
-  sectionDescription: {
+  sectionHeader: {
     marginTop: 8,
     fontSize: 18,
     fontWeight: '400',
+    color: '#444',
+  },
+  sectionDescription: {
+    marginTop: 8,
+    fontSize: 12,
     color: '#444',
   },
 });

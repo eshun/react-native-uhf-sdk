@@ -69,8 +69,9 @@ export default {
     setPower: function (power) {
         if (power > 14 && power < 27) {
             RNUhf.setPower(power);
+        } else {
+            throw new Error("power in 15~26");
         }
-        throw new Error("power in 15~26");
     },
     play: function () {
         RNUhf.play();
