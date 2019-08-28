@@ -1,6 +1,9 @@
 package com.uhf.example;
 
 import com.facebook.react.ReactActivity;
+import com.uhf.sdk.RNUhfModule;
+
+import android.view.KeyEvent;
 
 public class MainActivity extends ReactActivity {
 
@@ -11,5 +14,17 @@ public class MainActivity extends ReactActivity {
     @Override
     protected String getMainComponentName() {
         return "example";
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+        RNUhfModule.getInstance().onKeyDownEvent(keyCode,event);
+        return super.onKeyDown(keyCode,event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event){
+        RNUhfModule.getInstance().onKeyUpEvent(keyCode,event);
+        return super.onKeyUp(keyCode,event);
     }
 }

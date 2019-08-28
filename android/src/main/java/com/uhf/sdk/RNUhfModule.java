@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.view.KeyEvent;
 
 import com.uhf.sdk.protocol.RespAndNotifyFactory;
 import com.uhf.sdk.protocol.RespAndNotifyHandler;
@@ -75,6 +76,22 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
   private boolean isScanning = false;
   private boolean isMultiScan = false;
   private Thread thread;
+  private static RNUhfModule instance = null;
+
+  public static RNUhfModule getInstance() {
+    return instance;
+  }
+
+  public static RNUhfModule setInstance(ReactApplicationContext reactContext) {
+    if (instance == null) {
+      synchronized (RNUhfModule.class) {
+        if (instance == null) {
+          instance = new RNUhfModule(reactContext);
+        }
+      }
+    }
+    return instance;
+  }
 
   public RNUhfModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -387,6 +404,52 @@ public class RNUhfModule extends ReactContextBaseJavaModule implements Lifecycle
     } catch (Exception e) {
 
     }
+  }
+
+  public void onKeyDownEvent(int keyCode, KeyEvent keyEvent) {
+    logger.info("onKeyDownEvent:"+keyCode);
+
+    WritableMap params = Arguments.createMap();
+    params.putString("on", "onKeyDown");
+    params.putInt("keyCode", keyCode);
+
+    WritableMap keyEventMap = Arguments.createMap();
+    int action = keyEvent.getAction();
+    char pressedKey = (char) keyEvent.getUnicodeChar();
+    keyEventMap.putInt("action", action);
+    keyEventMap.putString("pressedKey", String.valueOf(pressedKey));
+    if (keyEvent.getAction() == KeyEvent.ACTION_MULTIPLE && keyCode == KeyEvent.KEYCODE_UNKNOWN) {
+      String chars = keyEvent.getCharacters();
+      if (chars != null) {
+        keyEventMap.putString("characters", chars);
+      }
+    }
+
+    params.putMap("keyEvent",keyEventMap);
+    reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("uhfEvent", params);
+  }
+
+  public void onKeyUpEvent(int keyCode, KeyEvent keyEvent) {
+    logger.info("onKeyUpEvent:"+keyCode);
+
+    WritableMap params = Arguments.createMap();
+    params.putString("on", "onKeyUp");
+    params.putInt("keyCode", keyCode);
+
+    WritableMap keyEventMap = Arguments.createMap();
+    int action = keyEvent.getAction();
+    char pressedKey = (char) keyEvent.getUnicodeChar();
+    keyEventMap.putInt("action", action);
+    keyEventMap.putString("pressedKey", String.valueOf(pressedKey));
+    if (keyEvent.getAction() == KeyEvent.ACTION_MULTIPLE && keyCode == KeyEvent.KEYCODE_UNKNOWN) {
+      String chars = keyEvent.getCharacters();
+      if (chars != null) {
+        keyEventMap.putString("characters", chars);
+      }
+    }
+
+    params.putMap("keyEvent",keyEventMap);
+    reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("uhfEvent", params);
   }
 
   private void showInfo(String data) {

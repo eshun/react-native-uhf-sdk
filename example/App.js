@@ -20,6 +20,8 @@ import {
 import RNUhf from 'react-native-uhf-sdk';
 
 let isMultiScan=false;
+let scanKeyCode=null;
+const scanKey=[103,104];
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -48,6 +50,28 @@ export default class App extends Component {
         this.setState({
           info: err
         });
+      },
+      onKeyDown: (keyCode,keyEvent) => {
+        console.log(keyCode,scanKey,scanKeyCode);
+        if(scanKey.indexOf(keyCode)>-1){
+          if(scanKey.indexOf(scanKeyCode)===-1){
+            scanKeyCode=keyCode;
+            //start scan
+            console.log("start scan");
+            RNUhf.scan();
+          }
+        }
+      },
+      onKeyUp:(keyCode,keyEvent) => {
+        console.log(keyCode,scanKey,scanKeyCode);
+        if(scanKey.indexOf(keyCode)>-1){
+          if(scanKey.indexOf(scanKeyCode)>-1){
+            scanKeyCode=null;
+            //stop scan
+            console.log("stop scan");
+            RNUhf.stop();
+          }
+        }
       }
     });
   }

@@ -15,13 +15,18 @@ let defaultOptions={
     },
     fail:function (err) {
 
+    },
+    onKeyDown:function (keyCode,keyEvent) {
+
+    },
+    onKeyUp:function (keyCode,keyEvent) {
+
     }
 };
 
 export default {
     init: function (options) {
         Object.assign(defaultOptions, options);
-
         if (!listener) {
             listener = DeviceEventEmitter.addListener('uhfEvent', (ret) => {
                 if (ret.info) {
@@ -30,9 +35,18 @@ export default {
                     defaultOptions.scan(ret.scan);
                 } else if (ret.err) {
                     defaultOptions.fail(ret.err);
+                } else if (ret.keyEvent) {
+                    if (ret.on === "onKeyDown") {
+                        defaultOptions.onKeyDown(ret.keyCode, ret.keyEvent);
+                    } else if (ret.on === "onKeyUp") {
+                        defaultOptions.onKeyUp(ret.keyCode, ret.keyEvent);
+                    }
+                } else {
+                    console.log(ret);
                 }
             });
         }
+        RNUhf.stop();
     },
     destroy: function () {
         listener = null;
