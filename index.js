@@ -19,7 +19,7 @@ let defaultOptions={
 };
 
 export default {
-    init: function(options) {
+    init: function (options) {
         Object.assign(defaultOptions, options);
 
         if (!listener) {
@@ -34,7 +34,7 @@ export default {
             });
         }
     },
-    destroy: function() {
+    destroy: function () {
         listener = null;
         RNUhf.pause();
     },
@@ -67,7 +67,10 @@ export default {
      * @param power
      */
     setPower: function (power) {
-        RNUhf.setPower(power);
+        if (power > 14 && power < 27) {
+            RNUhf.setPower(power);
+        }
+        throw new Error("power in 15~26");
     },
     play: function () {
         RNUhf.play();
