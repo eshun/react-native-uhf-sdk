@@ -15,18 +15,22 @@ import {
   Button,
   Slider,
   ToastAndroid,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 
 import RNUhf from 'react-native-uhf-sdk';
 
 let isMultiScan=false;
 let scanKeyCode=null;
-const scanKey=[103,104];
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       info: null,
+      modalVisible: false,
+      scanKey:[],
+      epc:[],
     };
   }
 
@@ -40,9 +44,13 @@ export default class App extends Component {
         });
       },
       scan: (data) => {
+        const {epc} = this.state;
         console.log("scan", data);
+        if (epc.indexOf(data) === -1) {
+          epc.push(data);
+        }
         this.setState({
-          info: data
+          epc
         });
       },
       fail: (err) => {
@@ -51,25 +59,37 @@ export default class App extends Component {
           info: err
         });
       },
-      onKeyDown: (keyCode,keyEvent) => {
-        console.log(keyCode,scanKey,scanKeyCode);
-        if(scanKey.indexOf(keyCode)>-1){
-          if(scanKey.indexOf(scanKeyCode)===-1){
-            scanKeyCode=keyCode;
+      onKeyDown: (keyCode, keyEvent) => {
+        const {scanKey, modalVisible} = this.state;
+        console.log(keyCode, scanKey, scanKeyCode, modalVisible, scanKey.indexOf(keyCode));
+        if (!modalVisible && scanKey.indexOf(keyCode) > -1) {
+          if (scanKey.indexOf(scanKeyCode) === -1) {
+            scanKeyCode = keyCode;
             //start scan
             console.log("start scan");
             RNUhf.scan();
           }
         }
       },
-      onKeyUp:(keyCode,keyEvent) => {
-        console.log(keyCode,scanKey,scanKeyCode);
-        if(scanKey.indexOf(keyCode)>-1){
-          if(scanKey.indexOf(scanKeyCode)>-1){
-            scanKeyCode=null;
-            //stop scan
-            console.log("stop scan");
-            RNUhf.stop();
+      onKeyUp: (keyCode, keyEvent) => {
+        const {scanKey, modalVisible} = this.state;
+        console.log(keyCode, scanKey, scanKeyCode, modalVisible, scanKey.indexOf(keyCode));
+        if (modalVisible) {
+          if (scanKey.indexOf(keyCode) === -1) {
+            scanKey.push(keyCode);
+          }
+          this.setState({
+            scanKey
+          });
+
+        } else {
+          if (scanKey.indexOf(keyCode) > -1) {
+            if (scanKey.indexOf(scanKeyCode) > -1) {
+              scanKeyCode = null;
+              //stop scan
+              console.log("stop scan");
+              RNUhf.stop();
+            }
           }
         }
       }
@@ -108,8 +128,46 @@ export default class App extends Component {
     RNUhf.setPower(value);
   };
 
+  renderModel(){
+    const {scanKey}=this.state;
+    return(
+        <Modal
+            animationType={"none"}
+            transparent={true}
+            visible={this.state.modalVisible}
+        >
+          <TouchableOpacity style={{flex:1}} onPress={() => {
+            this.setState({modalVisible:!this.state.modalVisible})
+          }}>
+          <View style={styles.modal}>
+            <TouchableOpacity activeOpacity={1}>
+              <View style={styles.modalBody}>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.sectionHeader}>
+                    热键设置
+                  </Text>
+                  <View style={styles.sectionContainer}>
+                    <View style={{flexDirection: 'row'}}>
+                    {scanKey.map(key=> <Text style={{marginRight: 8}}>{key}</Text>)}
+                    </View>
+
+                    <TouchableOpacity activeOpacity={1} onPress={() => {
+                      this.setState({scanKey:[]})
+                    }}>
+                      <Text>clear</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+          </TouchableOpacity>
+        </Modal>
+    );
+  }
+
   render() {
-    const {info} = this.state;
+    const {info,epc} = this.state;
     const scanTitle = isMultiScan ? 'stop' : 'multi scan';
 
     return (
@@ -175,6 +233,19 @@ export default class App extends Component {
                   />
                 </View>
               </View>
+              <View style={{flexDirection: 'row', marginTop: 8}}>
+                <View style={{width: '50%', marginRight: 4}}>
+                  <Button
+                      onPress={() => {
+                        this.setState({modalVisible:true})
+                      }}
+                      title="hot key"
+                      color="#841584"
+                  /></View>
+                <View style={{width: '50%', marginLeft: 4}}>
+
+                </View>
+              </View>
             </View>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionHeader}>
@@ -183,7 +254,11 @@ export default class App extends Component {
               <Text style={styles.sectionDescription}>
                 {info}
               </Text>
+              <View>
+                {epc.map(e=><Text>{e}</Text>)}
+              </View>
             </View>
+            {this.renderModel()}
           </View>
         </ScrollView>
     );
@@ -199,6 +274,7 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     marginTop: 8,
+    marginBottom: 8,
     paddingHorizontal: 24,
   },
   sectionHeader: {
@@ -212,5 +288,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#444',
   },
+  modal:{
+    flex:1,
+    justifyContent:'center',
+    backgroundColor:'rgba(0,0,0,0.5)'
+  },
+  modalBody:{
+    margin:10,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+  }
 });
 
